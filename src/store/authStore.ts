@@ -31,7 +31,7 @@ import type { Session, User } from '@supabase/supabase-js';
 /**
  * Defines the shape of the authentication state managed by Zustand.
  */
-interface AuthState {
+export interface AuthState {
   /**
    * Clears the user and session, typically after a logout.
    * Also sets isLoading to false.
@@ -78,14 +78,25 @@ interface AuthState {
  * session check performed by the Supabase client upon app startup.
  */
 export const useAuthStore = create<AuthState>((set) => ({
-  clearAuth: () => set({ isLoading: false, isPremium: false, session: null, user: null }), // Reset premium status on logout
+  clearAuth: () => {
+    console.log('[DEBUG authStore] clearAuth called');
+    set({ isLoading: false, isPremium: false, session: null, user: null }); // Reset premium status on logout
+  },
   isLoading: true, // Start with loading true until first auth check with Supabase.
   isPremium: false, // Default premium status to false.
   session: null,
-  setLoading: (loading) => set({ isLoading: loading }),
-  setPremiumStatus: (isPremiumStatus) => set({ isPremium: isPremiumStatus }),
-  setUserAndSession: (user, session) =>
-    set({ isLoading: false, session, user }),
+  setLoading: (loading) => {
+    console.log(`[DEBUG authStore] setLoading called with: ${loading}`);
+    set({ isLoading: loading });
+  },
+  setPremiumStatus: (isPremiumStatus) => {
+    console.log(`[DEBUG authStore] setPremiumStatus called with: ${isPremiumStatus}`);
+    set({ isPremium: isPremiumStatus });
+  },
+  setUserAndSession: (user, session) => {
+    console.log('[DEBUG authStore] setUserAndSession called. User:', user ? user.id : null, 'Session:', session ? 'Exists' : null);
+    set({ isLoading: false, session, user });
+  },
   user: null,
 }));
 

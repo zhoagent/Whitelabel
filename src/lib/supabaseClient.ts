@@ -28,9 +28,10 @@
 
 // BEGIN WRITING FILE CODE (TypeScript with JSX, NativeWind classNames)
 import AsyncStorage from '@react-native-async-storage/async-storage';
+console.log('AsyncStorage in supabaseClient:', AsyncStorage);
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './env.js';
-import type { Database } from '../types/supabase.js'; // Will use the generated types
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './env.ts';
+import type { Database } from '../types/supabase.ts'; // Will use the generated types
 
 if (!SUPABASE_URL) {
   throw new Error(
@@ -44,32 +45,21 @@ if (!SUPABASE_ANON_KEY) {
   );
 }
 
-// Adapter for AsyncStorage to ensure compatibility with Supabase's expected storage interface
-// and to satisfy ESLint's sorted-keys rule.
-const adaptedAsyncStorage: {
-  getItem: (key: string) => Promise<string | null>;
-  removeItem: (key: string) => Promise<void>;
-  setItem: (key: string, value: string) => Promise<void>;
-} = {
-  getItem: async (key: string): Promise<string | null> => {
-    return await AsyncStorage.default.getItem(key);
-  },
-  removeItem: async (key: string): Promise<void> => {
-    return await AsyncStorage.default.removeItem(key);
-  },
-  setItem: async (key: string, value: string): Promise<void> => {
-    return await AsyncStorage.default.setItem(key, value);
-  },
-};
+console.log(`[DEBUG] Initializing Supabase with URL: ${SUPABASE_URL}`);
+console.log(`[DEBUG] Initializing Supabase with ANON KEY: ${SUPABASE_ANON_KEY ? 'SET' : 'NOT SET'}`); // Avoid logging the key itself
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     autoRefreshToken: true,
     detectSessionInUrl: false, // Important for mobile, as URL-based session detection is not standard
     persistSession: true,
-    storage: adaptedAsyncStorage,
+    storage: AsyncStorage as any, // Cast to any to bypass type mismatch for now
+    // Any other existing valid auth options should be preserved
   },
 });
+
+console.log('[DEBUG] Supabase client theoretically created.');
+console.log('[DEBUG] Supabase client object:', supabase ? 'Exists' : 'Does NOT exist');
 
 // For development verification, you might want to log successful initialization
 // console.log('[NovaKit] Supabase client initialized.');

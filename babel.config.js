@@ -4,7 +4,7 @@ export default function (api) {
   return {
     presets: [
       '@nkzw/babel-preset-fbtee',
-      ['babel-preset-expo', { jsxImportSource: 'nativewind' }],
+      ['babel-preset-expo', { jsxImportSource: 'nativewind', unstable_transformImportMeta: true }],
       'nativewind/babel',
     ],
   };

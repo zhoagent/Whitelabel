@@ -23,7 +23,7 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
     "checkJs": true,
     "esModuleInterop": true,
