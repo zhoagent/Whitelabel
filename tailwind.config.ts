@@ -2,7 +2,7 @@
 import nativewindPreset from 'nativewind/dist/tailwind/index.js';
 import type { Config } from 'tailwindcss';
 import type { CSSRuleObject } from 'tailwindcss/types/config.d.ts';
-import colors from './src/ui/colors.ts';
+import colors from './src/styles/theme.ts';
 
 const variables: { [key: string]: string } = {};
 const colorMap: { [key: string]: string } = {};

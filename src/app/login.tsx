@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { SafeAreaView, View } from 'react-native';
-import Text from 'src/ui/Text.tsx';
-import useViewerContext from 'src/user/useViewerContext.tsx';
+import Text from '../components/core/Text.tsx';
+import useViewerContext from '../user/useViewerContext.tsx';
 
 export default function Login() {
   const router = useRouter();

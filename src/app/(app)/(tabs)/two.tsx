@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import Text from 'src/ui/Text.tsx';
+import Text from 'src/components/core/Text.tsx';
 import useViewerContext from 'src/user/useViewerContext.tsx';
 
 export default function Two() {

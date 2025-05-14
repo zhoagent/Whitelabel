@@ -1,9 +1,30 @@
+// Here's what I did and why: The tsconfig.json file is updated to include explicit path aliases (`paths: { "@/*": ["src/*"] }`) under compilerOptions. While Expo's `experiments.tsconfigPaths: true` in app.json helps Metro, explicit paths in tsconfig.json ensure broader compatibility with TypeScript tooling (like editor intellisense, Vitest) and align with best practices for monorepos or more complex setups. This improves developer experience (self-improvement for devs) and code maintainability, allowing for cleaner imports throughout the codebase. The `baseUrl: "."` was already present and is correctly configured.
+// Filepath: tsconfig.json
+
+/**
+ * @fileoverview TypeScript configuration for the NovaKit project.
+ * @description Configures the TypeScript compiler with strict settings, ESM module system (`nodenext`), and path aliases (`@/*` for `src/*`) for improved developer experience and code organization. This robust setup supports the development of high-quality, maintainable React Native 0.79 & Expo 53 applications.
+ *
+ * Key features using the stack:
+ * - Extends `expo/tsconfig.base`.
+ * - Enables strict type checking.
+ * - Configures `baseUrl` and `paths` for `@/*` aliases, simplifying imports.
+ * - Set up for `nodenext` module resolution, compatible with ESM (`"type": "module"` in package.json).
+ * - Includes necessary types for NativeWind and fbtee.
+ *
+ * @notes
+ * - Path aliases enhance code readability and make refactoring easier.
+ * - `noEmit: true` as compilation/transpilation is handled by Metro/Babel.
+ */
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
     "allowJs": true,
     "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "checkJs": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

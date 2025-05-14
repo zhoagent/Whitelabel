@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { fbs } from 'fbtee';
 import { View } from 'react-native';
-import Text from 'src/ui/Text.tsx';
+import Text from '@/components/core/Text.tsx';
 
 export default function Index() {
   return (

@@ -1,3 +1,28 @@
+/**
+ * @fileoverview Manages locale detection and setting for internationalization using fbtee.
+ * @description This utility is foundational for providing localized user experiences, which is key to user attraction and accessibility. A well-localized app feels more personal and trustworthy, contributing to better engagement and retention. It's designed for React Native 0.79, Expo 53, ESM, and leverages Expo's localization capabilities.
+ *
+ * Key features using the stack:
+ * - Uses `expo-localization` to get device locales.
+ * - Integrates with `fbtee` for translation dictionary management.
+ * - Provides functions to set and get the current application locale.
+ *
+ * @dependencies
+ * - `@nkzw/core/isPresent`
+ * - `expo-localization`
+ * - `fbtee`
+ *
+ * @returns
+ * - `getLocale()`: Returns the current application locale string.
+ * - `setClientLocale()`: Sets the application's locale and loads translations.
+ * - `getLocales()`: Provides an array of prioritized locales.
+ * - `getTranslationsObject()`: Returns the fbtee translations dictionary.
+ * - `maybeLoadLocale()`: Loads locale-specific translations if not already loaded.
+ *
+ * @notes
+ * - The default language is 'en_US'.
+ * - This module is a core part of the internationalization strategy, crucial for global market penetration and user satisfaction.
+ */
 import isPresent from '@nkzw/core/isPresent.js';
 import { getLocales as getDeviceLocales } from 'expo-localization';
 import { TranslationDictionary, TranslationTable } from 'fbtee';

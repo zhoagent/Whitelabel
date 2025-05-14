@@ -2,7 +2,7 @@ import createContextHook from '@nkzw/create-context-hook';
 import UntypedAsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import getLocale, { setClientLocale } from 'src/i18n/getLocale.tsx';
+import getLocale, { setClientLocale } from 'src/lib/i18n/getLocale.tsx';
 
 // The type of AsyncStorage is not correctly exported when using `"type": "module"` 🤷‍♂️.
 const AsyncStorage = UntypedAsyncStorage as unknown as Readonly<{

@@ -25,3 +25,5 @@ web-build/
 .source_strings.json
 .src_manifest.json
 src/translations/
+
+.env
