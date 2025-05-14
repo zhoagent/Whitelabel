@@ -32,7 +32,6 @@ const getEnvVariable = (key: keyof NodeJS.ProcessEnv): string => {
   if (!value && key !== 'EXPO_PUBLIC_REVENUECAT_APPLE_KEY' && key !== 'EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY') { // Allow optional keys to be undefined
     // For required keys, throw an error.
     const errorMessage = `Environment variable ${key} is not set. Please ensure it's defined in your .env file for local development or as an EAS Build secret.`;
-    console.error(errorMessage);
     throw new Error(errorMessage);
   }
   return value || ''; // Return empty string for optional keys if not set, or actual value.
