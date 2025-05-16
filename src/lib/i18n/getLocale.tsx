@@ -23,6 +23,8 @@
  * - The default language is 'en_US'.
  * - This module is a core part of the internationalization strategy, crucial for global market penetration and user satisfaction.
  */
+
+// BEGIN WRITING FILE CODE (TypeScript with JSX, NativeWind classNames)
 import isPresent from '@nkzw/core/isPresent.js';
 import { getLocales as getDeviceLocales } from 'expo-localization';
 import { TranslationDictionary, TranslationTable } from 'fbtee';
@@ -38,21 +40,22 @@ type LocaleLoaderFn = (
 
 const _defaultLanguage = 'en_US';
 const availableLocales = new Map<string, string>();
-const translations: TranslationDictionary = { [_defaultLanguage]: {} };
+const translations: TranslationDictionary = { [_defaultLanguage]: {} }; // Initialize with default language translations
 
 for (const [locale] of AvailableLanguages) {
   availableLocales.set(locale, locale);
-  availableLocales.set(locale.split('_')[0], locale);
+  availableLocales.set(locale.split('_')[0], locale); // map 'en' to 'en_US'
 }
 
 export async function setClientLocale(
   locale: string,
   loadLocale: LocaleLoaderFn,
 ) {
-  if (availableLocales.has(locale)) {
-    await maybeLoadLocale(locale, loadLocale);
-    if (locale !== currentLanguage) {
-      currentLanguage = locale;
+  const targetLocale = availableLocales.get(locale) || availableLocales.get(locale.split(/[-_]/)[0]) || _defaultLanguage;
+  if (targetLocale) {
+    await maybeLoadLocale(targetLocale, loadLocale);
+    if (targetLocale !== currentLanguage) {
+      currentLanguage = targetLocale;
     }
   }
 }
@@ -78,15 +81,15 @@ export function getLocales({
   );
 }
 
-let currentLanguage: string | null;
+let currentLanguage: string | null = null; // Initialize as null
 
 export default function getLocale(defaultLanguage = _defaultLanguage): string {
   if (currentLanguage) {
     return currentLanguage;
   }
 
-  for (const locale of getLocales()) {
-    const localeName = availableLocales.get(locale);
+  for (const locale of getLocales({fallback: defaultLanguage})) {
+    const localeName = availableLocales.get(locale) || availableLocales.get(locale.split(/[-_]/)[0]);
     if (localeName) {
       currentLanguage = localeName;
       return localeName;
@@ -104,11 +107,28 @@ export async function maybeLoadLocale(
   locale: string,
   loadLocale: LocaleLoaderFn,
 ) {
+  const targetLocale = availableLocales.get(locale) || availableLocales.get(locale.split(/[-_]/)[0]) || _defaultLanguage;
   if (
-    availableLocales.has(locale) &&
-    !translations[locale] &&
-    locale !== _defaultLanguage
+    targetLocale &&
+    !translations[targetLocale] && // Check if translations for the resolved targetLocale are loaded
+    targetLocale !== _defaultLanguage // Don't try to load default if it's already the base
   ) {
-    translations[locale] = await loadLocale(locale);
+    try {
+        const loadedTranslations = await loadLocale(targetLocale);
+        translations[targetLocale] = loadedTranslations;
+    } catch (error) {
+        console.error(`Failed to load translations for ${targetLocale}:`, error);
+        translations[targetLocale] = {}; // Ensure the key exists to prevent re-attempts
+    }
+  } else if (targetLocale === _defaultLanguage && !translations[_defaultLanguage]) {
+    // Ensure default language is loaded if somehow missed.
+    try {
+        const loadedTranslations = await loadLocale(_defaultLanguage);
+        translations[_defaultLanguage] = loadedTranslations;
+    } catch (error) {
+        console.error(`Failed to load default translations for ${_defaultLanguage}:`, error);
+        translations[_defaultLanguage] = {};
+    }
   }
 }
+// END WRITING FILE CODE

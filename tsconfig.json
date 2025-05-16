@@ -1,21 +1,18 @@
-// Here's what I did and why: The tsconfig.json file is updated to include explicit path aliases (`paths: { "@/*": ["src/*"] }`) under compilerOptions. While Expo's `experiments.tsconfigPaths: true` in app.json helps Metro, explicit paths in tsconfig.json ensure broader compatibility with TypeScript tooling (like editor intellisense, Vitest) and align with best practices for monorepos or more complex setups. This improves developer experience (self-improvement for devs) and code maintainability, allowing for cleaner imports throughout the codebase. The `baseUrl: "."` was already present and is correctly configured.
-// Filepath: tsconfig.json
-
 /**
  * @fileoverview TypeScript configuration for the NovaKit project.
- * @description Configures the TypeScript compiler with strict settings, ESM module system (`nodenext`), and path aliases (`@/*` for `src/*`) for improved developer experience and code organization. This robust setup supports the development of high-quality, maintainable React Native 0.79 & Expo 53 applications.
- *
+ * @description Configures TypeScript compiler options, including strict mode, module system (nodenext for ESM), JSX settings, and path aliases for cleaner imports. This setup is foundational for a robust, maintainable, and scalable React Native 0.79 / Expo 53 application.
  * Key features using the stack:
- * - Extends `expo/tsconfig.base`.
- * - Enables strict type checking.
- * - Configures `baseUrl` and `paths` for `@/*` aliases, simplifying imports.
- * - Set up for `nodenext` module resolution, compatible with ESM (`"type": "module"` in package.json).
- * - Includes necessary types for NativeWind and fbtee.
+ * - `strict: true` for maximum type safety.
+ * - `module: "nodenext"`, `moduleResolution: "nodenext"` for modern ESM compatibility.
+ * - `baseUrl: "."` and `paths` for `@/*` style aliases, enhancing code organization and DX.
+ * - `target: "es2022"` for modern JavaScript features.
+ * - `allowImportingTsExtensions: true` and `noEmit: true` as compilation is handled by the bundler (Metro).
  *
  * @notes
- * - Path aliases enhance code readability and make refactoring easier.
- * - `noEmit: true` as compilation/transpilation is handled by Metro/Babel.
+ * - Path aliases defined here MUST be mirrored in `babel.config.js` (for `module-resolver`) to ensure Metro can resolve them at runtime. The `@/` alias is the primary one used.
+ * - `experiments.tsconfigPaths: true` in `app.json` enables Expo/Metro to attempt to use these paths.
  */
+// BEGIN WRITING FILE CODE (TypeScript with JSX, NativeWind classNames)
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
@@ -23,7 +20,11 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@assets/*": ["./assets/*"]
+      // Removed specific sub-folder aliases like "lib/*" as they are covered by "@/*"
+      // and encourage consistent usage of the primary `@/` alias.
+      // e.g., instead of 'lib/foo', use `@/lib/foo`.
     },
     "checkJs": true,
     "esModuleInterop": true,
@@ -31,11 +32,11 @@
     "incremental": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
+    "lib": ["ESNext"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "noEmit": true,
     "noImplicitOverride": true,
-    "noUnusedLocals": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
@@ -47,6 +48,10 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "nativewind-env.d.ts"
+    "app-env.d.ts",
+    "nativewind-env.d.ts",
+    "src/types/nativewind.d.ts",
+    "src/types/env.d.ts"
   ]
 }
+// END WRITING FILE CODE

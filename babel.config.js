@@ -8,6 +8,7 @@ export default function (api) {
         {
           alias: {
             '@': './src',
+            '@assets': './assets', // ADDED: Alias for the root assets directory
           },
           extensions: ['.ios.js', '.android.js', '.js', '.jsx', '.ts', '.tsx', '.json'],
           root: ['./'],

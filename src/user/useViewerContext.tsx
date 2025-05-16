@@ -1,67 +1,83 @@
-// BEGIN WRITING FILE CODE (TypeScript with JSX, NativeWind classNames)
+/**
+@fileoverview Provides a legacy context for viewer-specific data, primarily locale and local settings.
+@description This context hook is slated for deprecation. Its responsibilities are being migrated: authentication state to authStore (Zustand), locale management to settingsStore (Zustand), and user profile data to TanStack Query + Supabase. For now, it handles locale switching using fbtee and persists simple local settings via AsyncStorage. This setup supports React Native 0.79, Expo 53, ESM.
+Key features using the stack (current, to be refactored):
+Manages locale state and provides setLocale function integrating with fbtee and dynamic imports for translation files from '@/locales/*.json' (dynamic imports).
+Persists localSettings using @react-native-async-storage/async-storage.
+Uses @nkzw/create-context-hook for context creation.
+@dependencies
+@nkzw/create-context-hook;
+@react-native-async-storage/async-storage;
+react;
+'@/lib/i18n/getLocale' (for fbtee integration);
+'@/locales/*.json' (dynamic imports);
+@returns
+ViewerContext: The React context object.
+useViewerContext: Hook to access the context value.
+useLocalSettings: Convenience hook for local settings.
+@notes
+DEPRECATION WARNING: This context will be removed. Migrate its functionalities:
+Auth state: Use useAuthStore from '@/store/authStore'.
+Locale management: Will move to a new useSettingsStore (Zustand), which will also handle persistence.
+User-specific settings: Best stored in Supabase profiles table and fetched via TanStack Query.
+The current implementation of localSettings is generic; user-specific settings would require more complex key management if not moved to Supabase.
+*/
 import createContextHook from '@nkzw/create-context-hook';
 import UntypedAsyncStorage from '@react-native-async-storage/async-storage';
-// useRouter is not directly used here anymore for auth redirects
 import { useCallback, useState, useEffect } from 'react';
-import getLocaleFbTee, {
+import type { TranslationTable } from 'fbtee';
+import getResolvedLocaleFromLib, { // Renamed to avoid conflict with local state
   setClientLocale as setFbTeeClientLocale,
-} from '@/lib/i18n/getLocale'; // Using @/ alias and renamed import for clarity
+} from '@/lib/i18n/getLocale';
 
-// The type of AsyncStorage is not correctly exported when using `"type": "module"` 🤷‍♂️.
 const AsyncStorage = UntypedAsyncStorage as unknown as Readonly<{
   getItem: (key: string) => Promise<string | null>;
-  removeItem: (key: string) => Promise<void>; // Added removeItem for completeness
+  removeItem: (key: string) => Promise<void>;
   setItem: (key: string, value: string) => Promise<void>;
 }>;
 
 type LocalSettings = Readonly<{
   localSettingExample: string | null;
-  // Add other non-sensitive, user-specific client-side settings here
 }>;
 
-// This was the key for localSettings, it depended on user.id.
-// Since user.id is now in authStore, this persistence needs to be re-evaluated if localSettings are user-specific.
-// For now, let's make it a generic key or assume localSettings are not user-bound in this context.
-// If they ARE user-bound, useViewerContext would need to observe authStore's user.id to change its storage key.
-// For simplicity in this step, we'll assume localSettings here are app-generic or use a fixed key.
-// A better approach for user-specific settings would be to store them in Supabase profiles table.
-const LOCAL_SETTINGS_STORAGE_KEY = '$appLocalSettings'; // Generic key
+const LOCAL_SETTINGS_STORAGE_KEY = '$appLocalSettings';
 
 const initialLocalSettings: LocalSettings = {
   localSettingExample: null,
 } as const;
 
+type FbtTranslationModule = {
+  default: {
+    fbLocale?: string;
+    translations: { [hashKey: string]: TranslationTable };
+  };
+};
+
 const [ViewerContext, useViewerContext] = createContextHook(() => {
-  // Locale state management (temporarily here, will move to settingsStore)
-  const [locale, _setLocale] = useState(getLocaleFbTee);
+  const [locale, _setLocale] = useState(getResolvedLocaleFromLib);
 
   const setLocale = useCallback((newLocale: string) => {
-    // Logic from src/lib/i18n/setup.tsx for loading translations
     setFbTeeClientLocale(newLocale, async (localeToLoad: string) => {
       try {
-        // This dynamic import structure should align with how fbtee expects to load translations
         if (localeToLoad === 'ja_JP') {
-          const module = await import('@/locales/ja_JP.json');
+          const module: FbtTranslationModule = await import('@/locales/ja_JP.json');
           return module.default.translations;
         }
         if (localeToLoad === 'en_US') {
-          const module = await import('@/locales/en_US.json');
-          return module.default.translations;
+          const module: FbtTranslationModule = await import('@/locales/en_US.json');
+          return module.default.translations || {};
         }
-        // Add other locales here
-      } catch {
-        // console.error(\`[ViewerContext] Failed to load translations for \${localeToLoad}:\`, error);
+      } catch (error) {
+        console.error(`[ViewerContext] Failed to load translations for ${localeToLoad}:`, error);
       }
-      return {}; // Fallback
+      return {};
     });
     _setLocale(newLocale);
   }, []);
 
-  // Local settings state management
   const [localSettings, setLocalSettings] =
     useState<LocalSettings>(initialLocalSettings);
 
-  // Effect to load localSettings from AsyncStorage on mount
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -71,8 +87,8 @@ const [ViewerContext, useViewerContext] = createContextHook(() => {
         if (storedSettings) {
           setLocalSettings(JSON.parse(storedSettings));
         }
-      } catch {
-        // console.error('[ViewerContext] Failed to load local settings:', error);
+      } catch (error) {
+        console.error('[ViewerContext] Failed to load local settings:', error);
       }
     };
     loadSettings();
@@ -88,28 +104,24 @@ const [ViewerContext, useViewerContext] = createContextHook(() => {
       AsyncStorage.setItem(
         LOCAL_SETTINGS_STORAGE_KEY,
         JSON.stringify(newSettings),
-      ).catch(error => {
-        // console.error('[ViewerContext] Failed to save local settings:', error);
+      ).catch((error) => {
+        console.error('[ViewerContext] Failed to save local settings:', error);
       });
     },
     [localSettings],
   );
 
-  // Auth-related state (user, isAuthenticated) and functions (login, logout)
-  // have been REMOVED from this context. They are now managed by:
-  // - \`authStore\` (Zustand) for client-side state.
-  // - \`AuthStateSyncer\` in \`_layout.tsx\` for Supabase events.
-  // - \`authService.ts\` (to be created) for Supabase API calls.
+  // Placeholder login/logout for context structure, will be removed.
+  const login = () => { /* console.log('Legacy login called'); */ };
+  const logout = () => { /* console.log('Legacy logout called'); */ };
+  const isAuthenticated = false; // Placeholder
 
   return {
-    // Auth properties are removed
-    // isAuthenticated: false, (Removed)
-    // user: null, (Removed)
-    // login: async () => {}, (Removed)
-    // logout: async () => {}, (Removed)
-
+    isAuthenticated, // Placeholder
     localSettings,
     locale,
+    login, // Placeholder
+    logout, // Placeholder
     setLocale,
     updateLocalSettings,
   };

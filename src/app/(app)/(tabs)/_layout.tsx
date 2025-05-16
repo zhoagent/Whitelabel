@@ -1,45 +1,36 @@
 /**
- * @fileoverview Layout for the main tab navigation within the authenticated app section.
- * @description Defines the tab structure (e.g., Home, Two/Settings) using Expo Router's `<Tabs>`. It includes an example of a header right component for locale switching, leveraging `fbtee` and `useViewerContext`. This layout is central to user navigation and experience within the core app.
- *
- * Key features using the stack:
- * - Uses Expo Router `<Tabs>` for tab-based navigation.
- * - Demonstrates dynamic header elements (`headerRight`) for actions like locale switching.
- * - Integrates `fbtee` for localized tab titles and UI text.
- * - Uses `@expo/vector-icons` (AntDesign) for tab icons (planned for replacement with custom SVGs).
- * - Styled with NativeWind `className` and direct style props where necessary.
- *
- * @dependencies
- * - `@expo/vector-icons/AntDesign`
- * - `expo-router`
- * - `fbtee`
- * - `react`
- * - `react-native`
- * - '@/lib/i18n/getLocale'
- * - '@/styles/theme'
- * - '@/components/core/Text'
- * - '@/user/useViewerContext'
- *
- * @notes
- * - The AntDesign icons are a temporary measure; the strategic goal is to use custom, themeable SVG icons for enhanced brand expression (attraction, status).
- * - Locale switching directly impacts user comfort and accessibility.
- */
-import _AntDesign from '@expo/vector-icons/AntDesign.js';
+@fileoverview Layout for the main tab navigation within the authenticated app.
+@description This component uses Expo Router's <Tabs> navigator to define the tab structure. It includes a custom tab bar and a temporary header button for locale switching (to be refactored to a settings screen). Built for React Native 0.79, Expo 53, using TypeScript, ESM, and pnpm. This layout is central to user navigation, guiding them to key engagement and value-driving sections of the application.
+Key features using the stack:
+Uses Expo Router <Tabs> for tab-based navigation.
+Integrates a CustomTabBar component for a branded and themeable tab UI (NativeWind, SVG Icons from '../../../components/core/Icon.tsx').
+Uses fbtee for internationalized tab titles and header titles, enhancing global appeal.
+Temporarily uses useViewerContext for locale switching; this logic is slated to move to a Zustand settingsStore and a dedicated settings screen for better state management and user self-improvement (customization).
+@dependencies
+@react-navigation/bottom-tabs (types for BottomTabBarProps)
+expo-router
+fbtee
+{ Pressable, View } from 'react-native'
+'../../../components/layout/CustomTabBar.tsx'
+'../../../components/core/Text.tsx'
+'../../../lib/i18n/getLocale.tsx'
+'../../../user/useViewerContext.tsx'
+'../../../styles/theme.ts'
+@notes
+The sceneStyle: { backgroundColor: 'transparent' } on <Tabs> can be useful if page backgrounds are handled individually or by a higher-level layout.
+Transitioning locale switching to a dedicated settings screen and settingsStore (Zustand) will align better with the target architecture for enhanced scalability and UX.
+This file is critical for the app's main navigation structure, directly impacting user experience and flow towards monetizable features or engagement loops.
+*/
+// BEGIN WRITING FILE CODE (TypeScript with JSX, NativeWind classNames)
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Tabs } from 'expo-router';
 import { fbs } from 'fbtee';
-import { FC } from 'react';
 import { Pressable, View } from 'react-native';
-import getLocale from '@/lib/i18n/getLocale';
-import colors from '@/styles/theme';
-import Text from '@/components/core/Text';
-import useViewerContext from '@/user/useViewerContext';
-
-// Types in `@expo/vector-icons` do not currently work correctly in `"type": "module"` packages.
-const AntDesign = _AntDesign as unknown as FC<{
-  color: string;
-  name: string;
-  size: number;
-}>;
+import { Text } from '../../../components/core/Text.tsx'; // Relative path is fine here
+import { CustomTabBar } from '../../../components/layout/CustomTabBar.tsx'; // Relative path is fine here
+import getLocale from '../../../lib/i18n/getLocale.tsx'; // Relative path is fine here
+import useViewerContext from '../../../user/useViewerContext.tsx'; // Relative path is fine here
+import { appColors } from '../../../styles/theme.ts'; // Relative path is fine here
 
 export default function TabLayout() {
   const { locale, setLocale } = useViewerContext();
@@ -47,54 +38,44 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        sceneStyle: {
-          backgroundColor: 'transparent',
+        headerStyle: {
+          backgroundColor: appColors.neutral[50], // Use direct color for simplicity now
         },
-        tabBarActiveTintColor: colors.purple,
+        headerTintColor: appColors.neutral[900], // Use direct color
+        headerTitleStyle: {
+          // fontFamily: 'Inter-Bold', // Removed custom font
+        },
+        sceneContainerStyle: {
+          // backgroundColor: 'transparent', // Allow individual screens to control their background
+        },
       }}
+      tabBar={(props: BottomTabBarProps) => <CustomTabBar {...props} />}
     >
       <Tabs.Screen
         name="index"
         options={{
           headerRight: () => (
             <Pressable
-              className="mr-2 rounded px-4 py-0"
+              className="mr-3 p-2 rounded-md active:bg-neutral-200 dark:active:bg-neutral-700"
               onPress={() => setLocale(locale === 'ja_JP' ? 'en_US' : 'ja_JP')}
             >
-              {({ pressed }) => (
-                <View
-                  style={{
-                    opacity: pressed ? 0.5 : 1,
-                  }}
-                >
-                  <Text>{getLocale().split('_')[0]}</Text>
-                </View>
-              )}
+              <View>
+                <Text className="text-text text-sm font-medium">
+                  {getLocale().split(/[_-]/)[0].toUpperCase()}
+                </Text>
+              </View>
             </Pressable>
           ),
-          tabBarIcon: ({ focused }: { focused: boolean }) => (
-            <AntDesign
-              color={focused ? colors.purple : colors.black}
-              name="ie"
-              size={24}
-            />
-          ),
-          title: String(fbs('Home', 'Home tab title')),
+          title: String(fbs('Home', 'Home header title')),
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="two" // This screen will later become settings.
         options={{
-          tabBarIcon: ({ focused }: { focused: boolean }) => (
-            <AntDesign
-              color={focused ? colors.purple : colors.black}
-              name="printer"
-              size={24}
-            />
-          ),
-          title: String(fbs('Two', 'Two tab title')),
+          title: String(fbs('Settings', 'Settings header title')),
         }}
       />
     </Tabs>
   );
 }
+// END WRITING FILE CODE
