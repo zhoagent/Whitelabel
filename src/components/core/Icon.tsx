@@ -13,7 +13,6 @@
  * @dependencies
  * - \`react\`
  * - \`react-native-svg\`
- * - \`nativewind/styled\`
  * - SVG files from \`@assets/icons/\` (e.g., \`@assets/icons/home.svg\`)
  *
  * @props
@@ -33,8 +32,6 @@
 // BEGIN WRITING FILE CODE (TypeScript with JSX, NativeWind classNames)
 import React from 'react';
 import { SvgProps } from 'react-native-svg';
-import { styled } from 'nativewind/styled';
-
 // Import your SVG components using the @assets alias.
 // This requires configuring \`@assets\` in babel.config.js and tsconfig.json to point to './assets'
 import HomeSvg from '@assets/icons/home.svg';
@@ -57,20 +54,15 @@ export interface IconProps extends Omit<SvgProps, 'color'> {
   size?: number;
 }
 
-// Using styled from nativewind/styled for the SVG components
-// This allows direct className application for fill/stroke if SVGs use currentColor
-const StyledHomeSvg = styled(HomeSvg);
-const StyledSettingsSvg = styled(SettingsSvg);
-// const StyledProfileSvg = styled(ProfileSvg);
-// const StyledSearchSvg =styled(SearchSvg);
+// The imported SVG components (HomeSvg, SettingsSvg, etc.) can accept className directly
+// when NativeWind's Babel plugin is configured with jsxImportSource: 'nativewind'.
 
-const styledIconMap: Record<IconName, React.ComponentType<SvgProps & { className?: string, currentColor?: string }>> = {
-  home: StyledHomeSvg,
-  settings: StyledSettingsSvg,
-  // profile: StyledProfileSvg,
-  // search: StyledSearchSvg,
+const iconMap: Record<IconName, React.ComponentType<SvgProps>> = {
+  home: HomeSvg,
+  settings: SettingsSvg,
+  // profile: ProfileSvg, // Ensure these are imported if uncommented
+  // search: SearchSvg,  // Ensure these are imported if uncommented
 };
-
 
 export const Icon = ({
   className, // NativeWind classes
@@ -79,7 +71,7 @@ export const Icon = ({
   size = 24,
   ...props // Other SvgProps like strokeWidth, fillRule etc.
 }: IconProps) => {
-  const SvgComponent = styledIconMap[name];
+  const SvgComponent = iconMap[name];
 
   if (!SvgComponent) {
     // console.warn(\`[IconComponent] Icon not found: \${name}\`);

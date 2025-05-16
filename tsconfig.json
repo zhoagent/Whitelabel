@@ -21,7 +21,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@assets/*": ["./assets/*"]
+      "@assets/*": ["./src/assets/*"]
       // Removed specific sub-folder aliases like "lib/*" as they are covered by "@/*"
       // and encourage consistent usage of the primary `@/` alias.
       // e.g., instead of 'lib/foo', use `@/lib/foo`.

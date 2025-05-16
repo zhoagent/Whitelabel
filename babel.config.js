@@ -8,7 +8,7 @@ export default function (api) {
         {
           alias: {
             '@': './src',
-            '@assets': './assets', // ADDED: Alias for the root assets directory
+            '@assets': './src/assets',
           },
           extensions: ['.ios.js', '.android.js', '.js', '.jsx', '.ts', '.tsx', '.json'],
           root: ['./'],
@@ -16,7 +16,6 @@ export default function (api) {
       ],
     ],
     presets: [
-      '@nkzw/babel-preset-fbtee',
       ['babel-preset-expo', { jsxImportSource: 'nativewind', unstable_transformImportMeta: true }],
       'nativewind/babel',
     ],
